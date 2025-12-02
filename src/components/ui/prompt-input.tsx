@@ -92,7 +92,11 @@ function PromptInput({
         <div
           onClick={handleClick}
           className={cn(
-            "border-input bg-background cursor-text rounded-3xl border p-2 shadow-xs",
+            "cursor-text rounded-3xl border p-2 shadow-xs",
+            // Light mode
+            "border-input bg-background",
+            // Dark mode - consistent background
+            "dark:border-[#3e3e38]/50 dark:bg-[#1f1e1d]",
             disabled && "cursor-not-allowed opacity-60",
             className
           )}
@@ -169,7 +173,11 @@ function PromptInputTextarea({
       onChange={handleChange}
       onKeyDown={handleKeyDown}
       className={cn(
-        "text-primary min-h-[44px] w-full resize-none border-none bg-transparent shadow-none outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
+        "min-h-[44px] w-full resize-none border-none shadow-none outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
+        // Light mode
+        "text-foreground bg-transparent placeholder:text-muted-foreground",
+        // Dark mode - matching colors
+        "dark:text-[#e5e5e2] dark:bg-transparent dark:placeholder:text-[#b7b5a9]/60",
         className
       )}
       rows={1}
@@ -218,7 +226,16 @@ function PromptInputAction({
       >
         {children}
       </TooltipTrigger>
-      <TooltipContent side={side} className={className}>
+      <TooltipContent
+        side={side}
+        className={cn(
+          // Light mode
+          "bg-popover text-popover-foreground border-border",
+          // Dark mode
+          "dark:bg-[#30302e] dark:text-[#e5e5e2] dark:border-[#3e3e38]/50",
+          className
+        )}
+      >
         {tooltip}
       </TooltipContent>
     </Tooltip>

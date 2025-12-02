@@ -19,8 +19,8 @@ export default async function Home() {
 
   return (
     <DashboardLayout user={user} chats={chats}>
-      <div className="flex flex-1 flex-col items-center justify-center">
-        <div className="text-center mb-8">
+      <div className="flex flex-1 flex-col items-center justify-center h-full px-4">
+        <div className="w-full max-w-2xl text-center mb-8">
           <h1 className="text-4xl font-bold text-foreground">
             What can I help you with?
           </h1>
@@ -28,7 +28,9 @@ export default async function Home() {
             Start a conversation by typing your message below.
           </p>
         </div>
-        <HomeChatInput />
+        <div className="w-full max-w-2xl">
+          <HomeChatInput />
+        </div>
       </div>
     </DashboardLayout>
   );

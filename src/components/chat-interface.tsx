@@ -17,7 +17,6 @@ import {
   MessageActions,
   MessageAction,
 } from "@/components/ui/message";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
 type ChatMessage = {
@@ -42,14 +41,13 @@ export function ChatInterface({
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const hasProcessedInitialRef = useRef(false);
 
   const scrollToBottom = useCallback(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
   useEffect(() => {
@@ -204,31 +202,38 @@ export function ChatInterface({
   };
 
   return (
-    <div className="flex h-full flex-col">
-      {/* Messages Area */}
-      <ScrollArea className="flex-1 px-4" ref={scrollRef}>
-        <div className="mx-auto max-w-3xl py-6">
+    <div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
+      {/* Scrollable Messages Area */}
+      <div
+        ref={scrollContainerRef}
+        className="flex-1 overflow-y-auto overscroll-contain"
+      >
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 py-4 sm:py-6">
           {messages.length === 0 ? (
-            <div className="flex h-[60vh] items-center justify-center">
-              <div className="text-center space-y-3">
-                <h2 className={cn(
-                  "text-2xl font-semibold tracking-tight",
-                  "text-foreground",
-                  "dark:text-[#e5e5e2]"
-                )}>
+            <div className="flex min-h-[50vh] items-center justify-center">
+              <div className="text-center space-y-3 px-4">
+                <h2
+                  className={cn(
+                    "text-xl sm:text-2xl font-semibold tracking-tight",
+                    "text-foreground",
+                    "dark:text-[#e5e5e2]"
+                  )}
+                >
                   {chatTitle}
                 </h2>
-                <p className={cn(
-                  "text-sm",
-                  "text-muted-foreground",
-                  "dark:text-[#b7b5a9]"
-                )}>
+                <p
+                  className={cn(
+                    "text-sm",
+                    "text-muted-foreground",
+                    "dark:text-[#b7b5a9]"
+                  )}
+                >
                   Start a conversation by typing a message below.
                 </p>
               </div>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {messages.map((message, index) => (
                 <Message
                   key={index}
@@ -243,6 +248,7 @@ export function ChatInterface({
                       alt="AI Assistant"
                       fallback="AI"
                       className={cn(
+                        "hidden sm:flex",
                         // Light mode
                         "bg-primary/10 text-primary border-primary/20",
                         // Dark mode
@@ -257,7 +263,7 @@ export function ChatInterface({
                     {message.role === "assistant" && !message.content ? (
                       <div
                         className={cn(
-                          "rounded-2xl px-4 py-3 max-w-[85%]",
+                          "rounded-2xl px-3 sm:px-4 py-2 sm:py-3 max-w-[90%] sm:max-w-[85%]",
                           // Light mode
                           "bg-secondary/80 border border-border/50 shadow-sm",
                           // Dark mode
@@ -278,7 +284,7 @@ export function ChatInterface({
                         <MessageContent
                           markdown={message.role === "assistant"}
                           className={cn(
-                            "max-w-[85%]",
+                            "max-w-[90%] sm:max-w-[85%]",
                             message.role === "user" && [
                               // Light mode user message
                               "bg-primary text-primary-foreground border-primary/50 ml-auto",
@@ -325,6 +331,7 @@ export function ChatInterface({
                       alt="You"
                       fallback="U"
                       className={cn(
+                        "hidden sm:flex",
                         // Light mode
                         "bg-primary text-primary-foreground border-primary",
                         // Dark mode
@@ -334,15 +341,17 @@ export function ChatInterface({
                   )}
                 </Message>
               ))}
+              {/* Scroll anchor */}
+              <div ref={messagesEndRef} />
             </div>
           )}
         </div>
-      </ScrollArea>
+      </div>
 
-      {/* Input Area */}
+      {/* Fixed Input Area */}
       <div
         className={cn(
-          "border-t p-4",
+          "shrink-0 border-t p-3 sm:p-4",
           // Light mode
           "border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80",
           // Dark mode
@@ -365,7 +374,7 @@ export function ChatInterface({
           >
             <PromptInputTextarea
               placeholder="Type your message..."
-              className="min-h-[52px] text-[15px]"
+              className="min-h-[44px] sm:min-h-[52px] text-sm sm:text-[15px]"
             />
             <PromptInputActions className="justify-end pt-2">
               <PromptInputAction
@@ -374,7 +383,7 @@ export function ChatInterface({
                 <Button
                   size="icon"
                   className={cn(
-                    "h-9 w-9 rounded-full transition-all duration-200",
+                    "h-8 w-8 sm:h-9 sm:w-9 rounded-full transition-all duration-200",
                     isLoading
                       ? "bg-destructive hover:bg-destructive/90 dark:bg-[#ef4444] dark:hover:bg-[#ef4444]/80"
                       : "bg-primary hover:bg-primary/90 hover:scale-105 dark:bg-[#d97757] dark:hover:bg-[#d97757]/80"
@@ -383,9 +392,9 @@ export function ChatInterface({
                   disabled={!input.trim() && !isLoading}
                 >
                   {isLoading ? (
-                    <Square className="h-4 w-4 fill-current" />
+                    <Square className="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-current" />
                   ) : (
-                    <ArrowUp className="h-4 w-4" />
+                    <ArrowUp className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   )}
                 </Button>
               </PromptInputAction>
