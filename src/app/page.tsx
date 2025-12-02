@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/server";
 import { redirect } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { ModeToggle } from "@/components/mode-toggle";
+import DashboardLayout from "@/components/dashboard-layout";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -15,24 +14,17 @@ export default async function Home() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-4 relative">
-      <div className="absolute top-4 right-4">
-        <ModeToggle />
+    <DashboardLayout user={user}>
+      <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm m-4">
+        <div className="flex flex-col items-center gap-1 text-center">
+          <h3 className="text-2xl font-bold tracking-tight">
+            Welcome to ChatPDF
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Select a chat from the sidebar or start a new one.
+          </p>
+        </div>
       </div>
-      <h1 className="text-2xl font-bold">Welcome to ChatPDF</h1>
-      <p>You are logged in as {user.email}</p>
-      <form
-        action={async () => {
-          "use server";
-          const supabase = await createClient();
-          await supabase.auth.signOut();
-          redirect("/login");
-        }}
-      >
-        <Button type="submit" variant="destructive">
-          Sign Out
-        </Button>
-      </form>
-    </div>
+    </DashboardLayout>
   );
 }

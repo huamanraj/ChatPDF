@@ -21,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/client";
+import { AuthBackground } from "@/components/auth-background";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -93,14 +94,21 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/50 p-4">
-      <Card className="w-full max-w-md border-none shadow-xl">
+    <div className="flex min-h-screen items-center justify-center p-4 relative">
+      <AuthBackground />
+      <Card className="w-full max-w-md border-none shadow-xl bg-card/80 backdrop-blur-sm">
         <CardHeader className="space-y-1 text-center">
+          <div className="flex justify-center mb-2">
+            <span className="text-3xl font-bold text-primary tracking-tighter">
+              ChatPDF
+            </span>
+          </div>
           <CardTitle className="text-2xl font-bold tracking-tight">
             Welcome back
           </CardTitle>
           <CardDescription>
-            Enter your email to sign in to your ChatPDF account
+            To start chatting with your files, please authenticate to save your
+            work and prevent abuse.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
@@ -151,7 +159,7 @@ export default function LoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="m@example.com"
+                placeholder="name@example.com"
                 autoCapitalize="none"
                 autoComplete="email"
                 autoCorrect="off"
@@ -169,6 +177,7 @@ export default function LoginPage() {
               <Input
                 id="password"
                 type="password"
+                placeholder="••••••••"
                 disabled={isLoading || isGoogleLoading}
                 {...register("password")}
               />
