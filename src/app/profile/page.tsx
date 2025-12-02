@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import DashboardLayout from "@/components/dashboard-layout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getChats } from "@/app/actions";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -15,8 +16,10 @@ export default async function ProfilePage() {
     return redirect("/login");
   }
 
+  const chats = await getChats();
+
   return (
-    <DashboardLayout user={user}>
+    <DashboardLayout user={user} chats={chats}>
       <div className="flex flex-1 items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="flex flex-col items-center gap-4">

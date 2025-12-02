@@ -34,7 +34,7 @@ import { Button } from "@/components/ui/button";
 import { signOut } from "@/app/actions";
 import { useRouter } from "next/navigation";
 
-export function AppSidebar({ user }: { user: any }) {
+export function AppSidebar({ user, chats = [] }: { user: any; chats?: any[] }) {
   const router = useRouter();
 
   return (
@@ -59,7 +59,7 @@ export function AppSidebar({ user }: { user: any }) {
         <div className="px-2 py-2 group-data-[collapsible=icon]:p-0">
           <Button
             className="w-full justify-start gap-2 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:mt-2"
-            onClick={() => {}}
+            onClick={() => router.push("/")}
           >
             <Plus className="size-4" />
             <span className="group-data-[collapsible=icon]:hidden">
@@ -73,11 +73,12 @@ export function AppSidebar({ user }: { user: any }) {
           <SidebarGroupLabel>History</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {/* Dummy history for now */}
-              {[1, 2, 3, 4, 5].map((item) => (
-                <SidebarMenuItem key={item}>
-                  <SidebarMenuButton>
-                    <span>Chat Session {item}</span>
+              {chats.map((chat) => (
+                <SidebarMenuItem key={chat.id}>
+                  <SidebarMenuButton
+                    onClick={() => router.push(`/chat/${chat.id}`)}
+                  >
+                    <span>{chat.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
