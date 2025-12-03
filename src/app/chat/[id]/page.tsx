@@ -1,4 +1,4 @@
-import { getChatMessages, getChats } from "@/app/actions";
+import { getChatMessages, getChats, getChatFiles } from "@/app/actions";
 import { ChatInterface } from "@/components/chat-interface";
 import DashboardLayout from "@/components/dashboard-layout";
 import { createClient } from "@/lib/server";
@@ -12,13 +12,13 @@ export default async function ChatPage({
   // Handle Next.js 16 params which is a Promise
   const resolvedParams = params instanceof Promise ? await params : params;
   const { id } = resolvedParams;
-  
+
   if (!id) {
     console.error("Chat ID is missing from params");
     redirect("/");
     return null;
   }
-  
+
   const supabase = await createClient();
 
   const {
@@ -47,6 +47,7 @@ export default async function ChatPage({
 
   const messages = await getChatMessages(id);
   const chats = await getChats();
+  const files = await getChatFiles(id);
 
   return (
     <DashboardLayout user={user} chats={chats}>
@@ -54,6 +55,7 @@ export default async function ChatPage({
         chatId={id}
         initialMessages={messages || []}
         chatTitle={chat.title}
+        uploadedFiles={files}
       />
     </DashboardLayout>
   );

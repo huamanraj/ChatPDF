@@ -26,16 +26,25 @@ type ChatMessage = {
   created_at?: string;
 };
 
+type UploadedFile = {
+  id: string;
+  file_name: string;
+  file_size: number;
+  uploaded_at: string;
+};
+
 type ChatInterfaceProps = {
   chatId: string;
   initialMessages: ChatMessage[];
   chatTitle: string;
+  uploadedFiles: UploadedFile[];
 };
 
 export function ChatInterface({
   chatId,
   initialMessages,
   chatTitle,
+  uploadedFiles,
 }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [input, setInput] = useState("");
@@ -96,6 +105,9 @@ export function ChatInterface({
         });
 
         if (!response.ok) {
+          if (response.status === 429) {
+            throw new Error("Rate limit exceeded. Please wait a moment.");
+          }
           throw new Error("Failed to send message");
         }
 
@@ -150,7 +162,9 @@ export function ChatInterface({
             const lastMessage = newMessages[newMessages.length - 1];
             if (lastMessage && lastMessage.role === "assistant") {
               lastMessage.content =
-                "Sorry, an error occurred. Please try again.";
+                error instanceof Error
+                  ? error.message
+                  : "Sorry, an error occurred. Please try again.";
             }
             return newMessages;
           });
@@ -209,142 +223,141 @@ export function ChatInterface({
         className="flex-1 overflow-y-auto overscroll-contain"
       >
         <div className="mx-auto max-w-4xl px-4 sm:px-8 py-4 sm:py-6">
-          {messages.length === 0 ? (
-            <div className="flex min-h-[50vh] items-center justify-center">
-              <div className="text-center space-y-3 px-4">
-                <h2
+          <div className="space-y-4 sm:space-y-6">
+            {/* Uploaded Files Indicator */}
+            {uploadedFiles.length > 0 && (
+              <div className="flex justify-center mb-6">
+                <div
                   className={cn(
-                    "text-xl sm:text-2xl font-semibold tracking-tight",
-                    "text-foreground",
-                    "dark:text-[#e5e5e2]"
+                    "flex flex-wrap items-center justify-center gap-2 px-4 py-2 rounded-full text-sm font-medium",
+                    "bg-secondary/50 border border-border/50",
+                    "dark:bg-[#2a2a28] dark:border-[#3e3e38]/50 dark:text-[#e5e5e2]"
                   )}
                 >
-                  {chatTitle}
-                </h2>
-                <p
-                  className={cn(
-                    "text-sm",
-                    "text-muted-foreground",
-                    "dark:text-[#b7b5a9]"
-                  )}
-                >
-                  Start a conversation by typing a message below.
-                </p>
+                  <Check className="h-4 w-4 text-green-500" />
+                  <span>
+                    Chatting with {uploadedFiles.length}{" "}
+                    {uploadedFiles.length === 1 ? "file" : "files"}:
+                  </span>
+                  <span className="font-normal text-muted-foreground dark:text-[#b7b5a9]">
+                    {uploadedFiles.map((f) => f.file_name).join(", ")}
+                  </span>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="space-y-4 sm:space-y-6">
-              {messages.map((message, index) => (
-                <Message
-                  key={index}
-                  className={cn(
-                    "group",
-                    message.role === "user" ? "justify-end" : "justify-start"
-                  )}
+            )}
+
+            {messages.map((message, index) => (
+              <Message
+                key={index}
+                className={cn(
+                  "group",
+                  message.role === "user" ? "justify-end" : "justify-start"
+                )}
+              >
+                {message.role === "assistant" && (
+                  <MessageAvatar
+                    src="/ai-avatar.png"
+                    alt="AI Assistant"
+                    fallback="AI"
+                    className={cn(
+                      "hidden sm:flex",
+                      // Light mode
+                      "bg-primary/10 text-primary border-primary/20",
+                      // Dark mode
+                      "dark:bg-[#d97757]/20 dark:text-[#d97757] dark:border-[#d97757]/30"
+                    )}
+                  />
+                )}
+                <MessageContainer
+                  className={cn(message.role === "user" && "items-end")}
                 >
-                  {message.role === "assistant" && (
-                    <MessageAvatar
-                      src="/ai-avatar.png"
-                      alt="AI Assistant"
-                      fallback="AI"
+                  {/* Loading state for assistant */}
+                  {message.role === "assistant" && !message.content ? (
+                    <div
                       className={cn(
-                        "hidden sm:flex",
+                        "rounded-2xl px-3 sm:px-4 py-2 sm:py-3 max-w-[90%] sm:max-w-[85%]",
                         // Light mode
-                        "bg-primary/10 text-primary border-primary/20",
+                        "bg-secondary/80 border border-border/50 shadow-sm",
                         // Dark mode
-                        "dark:bg-[#d97757]/20 dark:text-[#d97757] dark:border-[#d97757]/30"
+                        "dark:bg-[#2a2a28] dark:border-[#3e3e38]/50 dark:shadow-lg dark:shadow-black/20"
                       )}
-                    />
-                  )}
-                  <MessageContainer
-                    className={cn(message.role === "user" && "items-end")}
-                  >
-                    {/* Loading state for assistant */}
-                    {message.role === "assistant" && !message.content ? (
-                      <div
+                    >
+                      <span
                         className={cn(
-                          "rounded-2xl px-3 sm:px-4 py-2 sm:py-3 max-w-[90%] sm:max-w-[85%]",
-                          // Light mode
-                          "bg-secondary/80 border border-border/50 shadow-sm",
-                          // Dark mode
-                          "dark:bg-[#2a2a28] dark:border-[#3e3e38]/50 dark:shadow-lg dark:shadow-black/20"
-                        )}
-                      >
-                        <span className={cn(
                           "flex items-center gap-2 text-sm",
                           "text-muted-foreground",
                           "dark:text-[#b7b5a9]"
-                        )}>
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          <span className="animate-pulse">Thinking...</span>
-                        </span>
-                      </div>
-                    ) : (
-                      <>
-                        <MessageContent
-                          markdown={message.role === "assistant"}
-                          className={cn(
-                            "max-w-[90%] sm:max-w-[85%]",
-                            message.role === "user" && [
-                              // Light mode user message
-                              "bg-primary text-primary-foreground border-primary/50 ml-auto",
-                              // Dark mode user message
-                              "dark:bg-[#d97757] dark:text-white dark:border-[#d97757]/50 dark:shadow-lg dark:shadow-[#d97757]/20",
-                            ]
-                          )}
-                        >
-                          {message.content}
-                        </MessageContent>
-                        {/* Actions for assistant messages */}
-                        {message.role === "assistant" && message.content && (
-                          <MessageActions>
-                            <MessageAction
-                              tooltip={copiedIndex === index ? "Copied!" : "Copy"}
-                            >
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className={cn(
-                                  "h-7 w-7 rounded-lg",
-                                  "hover:bg-muted",
-                                  "dark:hover:bg-[#3e3e38]/50"
-                                )}
-                                onClick={() =>
-                                  copyToClipboard(message.content, index)
-                                }
-                              >
-                                {copiedIndex === index ? (
-                                  <Check className="h-3.5 w-3.5 text-green-500 dark:text-green-400" />
-                                ) : (
-                                  <Copy className="h-3.5 w-3.5" />
-                                )}
-                              </Button>
-                            </MessageAction>
-                          </MessageActions>
                         )}
-                      </>
-                    )}
-                  </MessageContainer>
-                  {message.role === "user" && (
-                    <MessageAvatar
-                      src="/user-avatar.png"
-                      alt="You"
-                      fallback="U"
-                      className={cn(
-                        "hidden sm:flex",
-                        // Light mode
-                        "bg-primary text-primary-foreground border-primary",
-                        // Dark mode
-                        "dark:bg-[#d97757] dark:text-white dark:border-[#d97757]/80"
+                      >
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span className="animate-pulse">Thinking...</span>
+                      </span>
+                    </div>
+                  ) : (
+                    <>
+                      <MessageContent
+                        markdown={message.role === "assistant"}
+                        className={cn(
+                          "max-w-[90%] sm:max-w-[85%]",
+                          message.role === "user" && [
+                            // Light mode user message
+                            "bg-primary text-primary-foreground border-primary/50 ml-auto",
+                            // Dark mode user message
+                            "dark:bg-[#d97757] dark:text-white dark:border-[#d97757]/50 dark:shadow-lg dark:shadow-[#d97757]/20",
+                          ]
+                        )}
+                      >
+                        {message.content}
+                      </MessageContent>
+                      {/* Actions for assistant messages */}
+                      {message.role === "assistant" && message.content && (
+                        <MessageActions>
+                          <MessageAction
+                            tooltip={copiedIndex === index ? "Copied!" : "Copy"}
+                          >
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className={cn(
+                                "h-7 w-7 rounded-lg",
+                                "hover:bg-muted",
+                                "dark:hover:bg-[#3e3e38]/50"
+                              )}
+                              onClick={() =>
+                                copyToClipboard(message.content, index)
+                              }
+                            >
+                              {copiedIndex === index ? (
+                                <Check className="h-3.5 w-3.5 text-green-500 dark:text-green-400" />
+                              ) : (
+                                <Copy className="h-3.5 w-3.5" />
+                              )}
+                            </Button>
+                          </MessageAction>
+                        </MessageActions>
                       )}
-                    />
+                    </>
                   )}
-                </Message>
-              ))}
-              {/* Scroll anchor */}
-              <div ref={messagesEndRef} />
-            </div>
-          )}
+                </MessageContainer>
+                {message.role === "user" && (
+                  <MessageAvatar
+                    src="/user-avatar.png"
+                    alt="You"
+                    fallback="U"
+                    className={cn(
+                      "hidden sm:flex",
+                      // Light mode
+                      "bg-primary text-primary-foreground border-primary",
+                      // Dark mode
+                      "dark:bg-[#d97757] dark:text-white dark:border-[#d97757]/80"
+                    )}
+                  />
+                )}
+              </Message>
+            ))}
+            {/* Scroll anchor */}
+            <div ref={messagesEndRef} />
+          </div>
         </div>
       </div>
 
@@ -373,8 +386,13 @@ export function ChatInterface({
             )}
           >
             <PromptInputTextarea
-              placeholder="Type your message..."
+              placeholder={
+                uploadedFiles.length > 0
+                  ? "Ask a question about the documents..."
+                  : "Upload files from the home page to start chatting..."
+              }
               className="min-h-11 sm:min-h-[52px] text-sm sm:text-[15px]"
+              disabled={uploadedFiles.length === 0}
             />
             <PromptInputActions className="justify-end pt-2">
               <PromptInputAction
@@ -389,7 +407,9 @@ export function ChatInterface({
                       : "bg-primary hover:bg-primary/90 hover:scale-105 dark:bg-[#d97757] dark:hover:bg-[#d97757]/80"
                   )}
                   onClick={isLoading ? handleStop : handleSubmit}
-                  disabled={!input.trim() && !isLoading}
+                  disabled={
+                    (!input.trim() && !isLoading) || uploadedFiles.length === 0
+                  }
                 >
                   {isLoading ? (
                     <Square className="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-current" />

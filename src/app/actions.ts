@@ -48,6 +48,33 @@ export async function createChat(title: string) {
     }
 }
 
+export async function createChatWithFiles(title: string) {
+    try {
+        const supabase = await createClient();
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+        if (userError || !user) {
+            throw new Error("Authentication error");
+        }
+
+        // Create the chat first
+        const { data: chat, error: chatError } = await supabase
+            .from("chats")
+            .insert({ title, user_id: user.id })
+            .select()
+            .single();
+
+        if (chatError || !chat) {
+            throw new Error("Failed to create chat");
+        }
+
+        return chat;
+    } catch (error) {
+        console.error("createChatWithFiles error:", error);
+        throw error;
+    }
+}
+
 export async function saveUserMessage(chatId: string, content: string) {
     const supabase = await createClient();
     const { error } = await supabase.from("messages").insert({
@@ -84,4 +111,16 @@ export async function getChatMessages(chatId: string) {
 
     if (error) throw error;
     return data;
+}
+
+export async function getChatFiles(chatId: string) {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from("chat_files")
+        .select("*")
+        .eq("chat_id", chatId)
+        .order("uploaded_at", { ascending: true });
+
+    if (error) throw error;
+    return data || [];
 }
