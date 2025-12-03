@@ -208,7 +208,7 @@ export function ChatInterface({
         ref={scrollContainerRef}
         className="flex-1 overflow-y-auto overscroll-contain"
       >
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 py-4 sm:py-6">
+        <div className="mx-auto max-w-4xl px-4 sm:px-8 py-4 sm:py-6">
           {messages.length === 0 ? (
             <div className="flex min-h-[50vh] items-center justify-center">
               <div className="text-center space-y-3 px-4">
@@ -351,9 +351,9 @@ export function ChatInterface({
       {/* Fixed Input Area */}
       <div
         className={cn(
-          "shrink-0 border-t p-3 sm:p-4",
+          "shrink-0   sm:pb-3 sm:pt-0 p-3 ",
           // Light mode
-          "border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80",
+          "border-border  backdrop-blur supports-backdrop-filter:bg-background/80",
           // Dark mode
           "dark:border-[#3e3e38]/50 dark:bg-[#262624]/95 dark:backdrop-blur-lg"
         )}
@@ -374,7 +374,7 @@ export function ChatInterface({
           >
             <PromptInputTextarea
               placeholder="Type your message..."
-              className="min-h-[44px] sm:min-h-[52px] text-sm sm:text-[15px]"
+              className="min-h-11 sm:min-h-[52px] text-sm sm:text-[15px]"
             />
             <PromptInputActions className="justify-end pt-2">
               <PromptInputAction

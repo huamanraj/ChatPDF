@@ -125,7 +125,7 @@ const MessageContent = ({
     "prose-pre:bg-muted prose-pre:border prose-pre:border-border prose-pre:rounded-xl prose-pre:my-3 prose-pre:shadow-sm",
     
     // === CODE STYLING - DARK MODE ===
-    "dark:prose-code:text-[#d97757] dark:prose-code:bg-[#1a1a18]",
+    "dark:prose-code:text-[#d97757] dark:prose-code:bg-[#1a1a18] dark:prose-code:px-1.5 dark:prose-code:py-0.5 dark:prose-code:rounded-md dark:prose-code:text-sm dark:prose-code:font-mono",
     "dark:prose-pre:bg-[#1a1a18] dark:prose-pre:border-[#3e3e38]/50 dark:prose-pre:shadow-lg dark:prose-pre:shadow-black/30",
     
     // === LINKS ===
