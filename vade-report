@@ -1,0 +1,45 @@
+# React Flight / Next.js RCE Advisory - Remediation Report
+
+## Summary
+Successfully addressed the React Flight / Next.js RCE advisory (CVE-2024-50854) by upgrading Next.js to the patched version.
+
+## Vulnerability Assessment
+**Affected Packages Detected:**
+- ✅ `next@16.0.6` - VULNERABLE (required upgrade)
+
+**Not Affected:**
+- ✅ No React Flight packages detected (`react-server-dom-webpack`, `react-server-dom-parcel`, `react-server-dom-turbopack`)
+- ✅ `react@19.2.0` and `react-dom@19.2.0` are not directly vulnerable per the advisory
+
+## Changes Made
+
+### Modified Files
+1. **package.json**
+   - Upgraded `next` from `16.0.6` to `16.0.7` (patched version)
+   - Upgraded `eslint-config-next` from `16.0.6` to `16.0.7` (for consistency with Next.js version)
+
+2. **bun.lockb**
+   - Updated lockfile to reflect patched dependency versions
+   - Ran `bun install` to ensure lockfile consistency
+
+## Rationale
+- According to the vulnerability advisory upgrade rules, Next.js 16.x should be upgraded to `16.0.7`
+- No changes needed for React or React DOM as they are not directly vulnerable
+- No React Flight packages are used in this project, so only Next.js upgrade was required
+- Bun was selected as the package manager (detected by presence of `bun.lockb`)
+
+## Verification
+✅ Build completed successfully: `next build` completed without dependency-related errors
+✅ TypeScript compilation passed
+✅ All 11 static pages generated successfully
+✅ Project structure preserved - only dependency versions updated
+
+## Files Changed
+- `package.json` - 2 lines modified (next and eslint-config-next versions)
+- `bun.lockb` - Updated by package manager to reflect new dependency versions
+
+## Important Notes
+- The project uses Bun as its package manager
+- Build environment variables were required but not included in version control (expected)
+- No application logic or structure was modified - only security patches applied
+- The deprecated middleware warning in the build is not related to this security update
